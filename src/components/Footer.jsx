@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useSiteContent } from '@/lib/siteContentContext';
 import { motion } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
 import { Heart, ArrowUp } from 'lucide-react';
@@ -12,6 +13,7 @@ const Footer = () => {
   };
 
   const currentYear = new Date().getFullYear();
+  const { siteContent } = useSiteContent();
 
   const footerSections = [
     {
@@ -67,19 +69,24 @@ const Footer = () => {
             <Link to="/">
               <div className="mb-6">
                 <span className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                  Alex Johnson
+                  {siteContent?.name || 'Portfolio'}
                 </span>
               </div>
             </Link>
             <p className="text-white/70 mb-6 max-w-md leading-relaxed">
-              Full Stack Developer passionate about creating beautiful, functional, 
-              and user-centered digital experiences. Let's build something amazing together.
+              {siteContent?.footer_description }
             </p>
-            <div className="flex items-center text-white/60">
-              <span>Made with</span>
-              <Heart size={16} className="mx-2 text-red-400 fill-current" />
-              <span>and lots of coffee</span>
-            </div>
+            
+            {/* Social Links */}
+            {siteContent?.social_links && (
+              <div className="flex gap-4 mt-6">
+                {siteContent.social_links.map(link => (
+                  <a key={link.id} href={link.url} target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-white text-lg">
+                    {link.platform}
+                  </a>
+                ))}
+              </div>
+            )}
           </motion.div>
 
           {/* Links */}
@@ -123,9 +130,8 @@ const Footer = () => {
           className="border-t border-white/10 mt-12 pt-8 flex flex-col md:flex-row items-center justify-between"
         >
           <p className="text-white/60 text-sm mb-4 md:mb-0">
-            © {currentYear} Alex Johnson. All rights reserved.
+            {siteContent?.footer_copyright || `© ${currentYear} Portfolio. All rights reserved.`}
           </p>
-          
           <Button
             onClick={scrollToTop}
             variant="ghost"

@@ -3,14 +3,11 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowDown, Github, Linkedin, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { toast } from '@/components/ui/use-toast';
+import { Link } from 'react-router-dom';
+import { useSiteContent } from '@/lib/siteContentContext';
 
 const Hero = () => {
-  const handleSocialClick = (platform) => {
-    toast({
-      title: "🚧 This feature isn't implemented yet—but don't worry! You can request it in your next prompt! 🚀"
-    });
-  };
+  const { siteContent } = useSiteContent();
 
   const scrollToAbout = () => {
     const aboutSection = document.querySelector('#about');
@@ -45,13 +42,13 @@ const Hero = () => {
             <div className="absolute inset-0 bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 rounded-full animate-pulse"></div>
             <div className="absolute inset-2 bg-gradient-to-br from-slate-900 to-purple-900 rounded-full flex items-center justify-center">
               <img  
-                alt="Professional headshot of a software developer"
+                alt={siteContent?.name ? `${siteContent.name} profile` : "Professional headshot of a software developer"}
                 className="w-40 h-40 rounded-full object-cover border-4 border-white/20"
-               src="https://images.unsplash.com/photo-1575383596664-30f4489f9786" />
+                src={siteContent?.profile_image || "https://images.unsplash.com/photo-1575383596664-30f4489f9786"} />
             </div>
           </motion.div>
 
-          {/* Name and Title */}
+          {/* Name, Designation, Short Bio from API */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -59,47 +56,59 @@ const Hero = () => {
           >
             <h1 className="text-5xl md:text-7xl font-bold mb-4">
               <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
-                Alex Johnson
+                {siteContent?.name || 'Portfolio User'}
               </span>
             </h1>
             <p className="text-xl md:text-2xl text-white/80 mb-6">
-              Full Stack Developer & UI/UX Designer
+              {siteContent?.designation || 'Full Stack Developer'}
             </p>
           </motion.div>
 
-          {/* Description */}
+          {/* Short Bio from API */}
           <motion.p
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
             className="text-lg text-white/70 max-w-2xl mx-auto mb-8"
           >
-            Passionate about creating beautiful, functional, and user-centered digital experiences. 
-            I bring ideas to life through code and design.
+            {siteContent?.short_bio || 'Passionate about creating beautiful, functional, and user-centered digital experiences. I bring ideas to life through code and design.'}
           </motion.p>
 
-          {/* Social Links */}
+          {/* Social Links: Only GitHub, LinkedIn, Email if available */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8 }}
             className="flex justify-center space-x-6 mb-12"
           >
-            {[
-              { icon: Github, label: 'GitHub' },
-              { icon: Linkedin, label: 'LinkedIn' },
-              { icon: Mail, label: 'Email' }
-            ].map(({ icon: Icon, label }) => (
-              <motion.button
-                key={label}
-                onClick={() => handleSocialClick(label)}
-                whileHover={{ scale: 1.1, y: -5 }}
-                whileTap={{ scale: 0.95 }}
-                className="p-4 bg-white/10 backdrop-blur-lg rounded-full border border-white/20 hover:bg-white/20 transition-all duration-300"
-              >
-                <Icon size={24} className="text-white" />
-              </motion.button>
-            ))}
+            {siteContent?.social_links && [
+              { key: 'github', icon: Github },
+              { key: 'linkedin', icon: Linkedin },
+              { key: 'email', icon: Mail }
+            ].map(({ key, icon: Icon }) => {
+              let url = null;
+              if (key === 'email' && siteContent?.email) {
+                url = `mailto:${siteContent.email}`;
+              } else {
+                const found = siteContent.social_links.find(l => l.platform.toLowerCase() === key);
+                if (found) url = found.url;
+              }
+              if (!url) return null;
+              return (
+                <motion.a
+                  key={key}
+                  href={url}
+                  target={key === 'email' ? undefined : '_blank'}
+                  rel={key === 'email' ? undefined : 'noopener noreferrer'}
+                  whileHover={{ scale: 1.1, y: -5 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="p-4 bg-white/10 backdrop-blur-lg rounded-full border border-white/20 hover:bg-white/20 transition-all duration-300 flex items-center"
+                >
+                  <Icon size={24} className="text-white" />
+                  <span className="sr-only">{key}</span>
+                </motion.a>
+              );
+            })}
           </motion.div>
 
           {/* CTA Button */}
@@ -108,13 +117,14 @@ const Hero = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1 }}
           >
-            <Button
-              onClick={scrollToAbout}
-              size="lg"
-              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
-            >
-              Explore My Work
-            </Button>
+            <Link to="/projects">
+              <Button
+                size="lg"
+                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                Explore My Work
+              </Button>
+            </Link>
           </motion.div>
         </motion.div>
 
@@ -123,7 +133,7 @@ const Hero = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.5 }}
-          className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
+          className="absolute left-1/2 transform -translate-x-1/2"
         >
           <motion.button
             onClick={scrollToAbout}
