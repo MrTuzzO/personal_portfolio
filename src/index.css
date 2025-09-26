@@ -72,11 +72,36 @@ a:focus {
   color: white;
 }
 
-/* Glassmorphism utility */
-.glass {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+
+/* Tailwind Typography Prose Customization */
+.prose {
+  color: #e0e7ef;
+}
+.prose h1, .prose h2, .prose h3, .prose h4 {
+  color: #38bdf8;
+}
+.prose strong {
+  color: #fff;
+}
+.prose a {
+  color: #38bdf8;
+  text-decoration: underline;
+}
+.prose ul, .prose ol {
+  margin-bottom: 1.5em;
+}
+.prose li {
+  margin-bottom: 0.5em;
+}
+.prose blockquote {
+  background: rgba(56,189,248,0.1);
+  border-left: 4px solid #38bdf8;
+  padding-left: 1em;
+  color: #e0e7ef;
+}
+.prose img {
+  border-radius: 1em;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.15);
 }
 
 /* Gradient text utility */

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE_URL } from '@/lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -21,8 +22,8 @@ const Skills = () => {
       try {
         setIsLoading(true);
         const [catRes, skillRes] = await Promise.all([
-          fetch('https://tuzzo.dotbrid.com/api/st-categories/'),
-          fetch('https://tuzzo.dotbrid.com/api/skills-and-technologies/')
+          fetch(`${API_BASE_URL}/st-categories/`),
+          fetch(`${API_BASE_URL}/skills-and-technologies/`)
         ]);
         if (!catRes.ok) throw new Error('Failed to fetch categories');
         if (!skillRes.ok) throw new Error('Failed to fetch skills');
